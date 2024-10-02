@@ -1,65 +1,149 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, StyleSheet, ScrollView, Picker } from 'react-native';
 import { Input, Button, Text } from 'react-native-elements';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Animatable from 'react-native-animatable';
 
+const provinces = [
+  'Bengo', 'Benguela', 'Bié', 'Cabinda', 'Cuando Cubango', 'Cuanza Norte', 'Cuanza Sul', 
+  'Cunene', 'Huambo', 'Huíla', 'Luanda', 'Lunda Norte', 'Lunda Sul', 'Malanje', 'Moxico', 
+  'Namibe', 'Uíge', 'Zaire'
+];
+
 const BookingInfoScreen = ({ navigation, route }) => {
   const { ride, company } = route.params;
-  const [name, setName] = useState('');
-  const [idNumber, setIdNumber] = useState('');
-  const [passengers, setPassengers] = useState('');
-  const [date, setDate] = useState(new Date());
+  
+  const scrollViewRef = useRef(null); // To handle automatic sliding
+  const [passengers, setPassengers] = useState([{
+    nomeCompleto: '',
+    telefone: '',
+    idade: '',
+    sexo: '',
+    destino: ride.destination,
+    provincia: '',
+    data: new Date(),
+  }]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const addPassenger = () => {
+    setPassengers([...passengers, {
+      nomeCompleto: '',
+      telefone: '',
+      idade: '',
+      sexo: '',
+      destino: ride.destination,
+      provincia: '',
+      data: new Date(),
+    }]);
+    setTimeout(() => {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }, 300); // Automatically slide to the new form
+  };
+
+  const handleInputChange = (field, value, index) => {
+    const updatedPassengers = [...passengers];
+    updatedPassengers[index][field] = value;
+    setPassengers(updatedPassengers);
+  };
+
+  const handleDateChange = (event, selectedDate, index) => {
+    const updatedPassengers = [...passengers];
+    updatedPassengers[index].data = selectedDate || updatedPassengers[index].data;
+    setPassengers(updatedPassengers);
+    setShowDatePicker(false);
+  };
+
   const handleConfirm = () => {
-    navigation.navigate('Payment', { bookingInfo: { name, idNumber, passengers, date }, ride, company });
+    navigation.navigate('Payment', { bookingInfo: passengers, ride, company });
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <Animatable.View animation="fadeInUp" duration={1000}>
-        <Text h4 style={styles.title}>Informações de Reserva</Text>
-        <Input
-          placeholder="Nome"
-          value={name}
-          onChangeText={setName}
-        />
-        <Input
-          placeholder="Número de Identificação"
-          value={idNumber}
-          onChangeText={setIdNumber}
-        />
-        <Input
-          placeholder="Número de Passageiros"
-          value={passengers}
-          onChangeText={setPassengers}
-          keyboardType="numeric"
-        />
+        <Text h4 style={styles.title}>Bilhetes</Text>
+
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+        >
+          {passengers.map((passenger, index) => (
+            <View key={index} style={styles.formContainer}>
+              <Input
+                placeholder="Nome Completo"
+                value={passenger.nomeCompleto}
+                onChangeText={(value) => handleInputChange('nomeCompleto', value, index)}
+              />
+              <Input
+                placeholder="Nº Telefone / Whatsapp"
+                value={passenger.telefone}
+                onChangeText={(value) => handleInputChange('telefone', value, index)}
+                keyboardType="phone-pad"
+              />
+              <Input
+                placeholder="Idade"
+                value={passenger.idade}
+                onChangeText={(value) => handleInputChange('idade', value, index)}
+                keyboardType="numeric"
+              />
+              <Picker
+                selectedValue={passenger.sexo}
+                onValueChange={(value) => handleInputChange('sexo', value, index)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecione o sexo" value="" />
+                <Picker.Item label="Masculino" value="Masculino" />
+                <Picker.Item label="Feminino" value="Feminino" />
+              </Picker>
+              <Picker
+                selectedValue={passenger.provincia}
+                onValueChange={(value) => handleInputChange('provincia', value, index)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecione a província" value="" />
+                {provinces.map((provincia) => (
+                  <Picker.Item key={provincia} label={provincia} value={provincia} />
+                ))}
+              </Picker>
+              <Button
+                title={passenger.data.toLocaleDateString()}
+                onPress={() => setShowDatePicker(true)}
+                buttonStyle={styles.dateButton}
+                titleStyle={styles.dateTitle}
+              />
+              {showDatePicker && (
+                <DateTimePicker
+                  value={passenger.data}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => handleDateChange(event, selectedDate, index)}
+                />
+              )}
+            </View>
+          ))}
+        </ScrollView>
+
+        <View style={styles.passengerCounter}>
+          <Text>{`${passengers.length} Passageiro(s)`}</Text>
+        </View>
+
         <Button
-          title={date.toLocaleDateString()}
-          onPress={() => setShowDatePicker(true)}
-          buttonStyle={styles.dateButton}
+          title="Adicionar Passageiro"
+          onPress={addPassenger}
+          buttonStyle={styles.addButton}
+          type="outline"
         />
-        {showDatePicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowDatePicker(false);
-              if (selectedDate) setDate(selectedDate);
-            }}
-          />
-        )}
-        <Button
-          title="Confirmar"
-          onPress={handleConfirm}
-          buttonStyle={styles.confirmButton}
-          containerStyle={styles.buttonContainer}
-        />
+
+<Button
+  title="Confirmar"
+  onPress={() => navigation.navigate('Confirm', { bookingInfo: passengers, ride, company })} // Navigate to ConfirmScreen
+  buttonStyle={styles.confirmButton}
+  containerStyle={styles.buttonContainer}
+/>
       </Animatable.View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -73,15 +157,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
+  formContainer: {
+    width: 300,
+    paddingHorizontal: 10,
+  },
+  picker: {
+    marginVertical: 10,
+    height: 50,
+  },
   dateButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#2196F3',
     marginVertical: 20,
+  },
+  dateTitle: {
+    color: '#2196F3',
+  },
+  addButton: {
+    borderColor: '#4CAF50',
+    borderWidth: 1,
+    marginVertical: 10,
   },
   confirmButton: {
     backgroundColor: '#4CAF50',
   },
   buttonContainer: {
     marginTop: 20,
+  },
+  passengerCounter: {
+    alignItems: 'center',
+    marginBottom: 10,
   },
 });
 

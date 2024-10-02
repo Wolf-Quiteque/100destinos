@@ -1,31 +1,29 @@
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Button, Image } from 'react-native-elements';
+import { View, StyleSheet, FlatList, ImageBackground, Text,TouchableOpacity } from 'react-native';
+import { Button } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 
 const companies = [
-  { id: '1', name: 'Macon' },
-  { id: '2', name: 'Humabo Express' },
-  { id: '3', name: 'REAL Express' },
+  { id: '1', name: 'Macon', img:"../assets/macon.jpg" },
+  { id: '2', name: 'Humabo Express', img:"../assets/Huambo-Expresso.jpg"  },
+  { id: '3', name: 'REAL Express',img:"../assets/maxresdefault.jpg" },
 ];
 
 const CompanyListScreen = ({ navigation }) => {
   const renderItem = ({ item, index }) => (
     <Animatable.View animation="fadeInUp" delay={index * 200}>
-      <Button
-        title={item.name}
-        onPress={() => navigation.navigate('Timetable', { company: item })}
-        buttonStyle={styles.companyButton}
-        containerStyle={styles.buttonContainer}
-        titleStyle={styles.buttonTitle}
-        icon={
-          <Image
-            source={{ uri: `https://picsum.photos/seed/${item.id}/200` }}
-            style={styles.companyImage}
-          />
-        }
-        iconPosition="top"
-      />
+         <TouchableOpacity onPress={() => navigation.navigate('Timetable', { company: item })}>
+        
+      <ImageBackground
+        source={item.img}
+        style={styles.companyButton}
+        imageStyle={styles.backgroundImage}
+      >
+        <View style={styles.overlay}>
+          <Text style={styles.buttonTitle}>{item.name}</Text>
+        </View>
+      </ImageBackground>
+      </TouchableOpacity>   
     </Animatable.View>
   );
 
@@ -49,23 +47,29 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 20,
   },
-  buttonContainer: {
-    marginBottom: 20,
-  },
   companyButton: {
-    backgroundColor: '#2196F3',
+    width: '100%',
+    height: 150,
     borderRadius: 10,
-    padding: 15,
+    overflow: 'hidden',
+    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    resizeMode: 'cover',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark overlay
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonTitle: {
-    fontSize: 18,
+    color: 'white',
+    fontSize: 20,
     fontWeight: 'bold',
-  },
-  companyImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
+    textAlign: 'center',
   },
 });
 

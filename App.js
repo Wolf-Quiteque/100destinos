@@ -10,16 +10,18 @@ import TimetableScreen from './screens/TimetableScreen';
 import BookingInfoScreen from './screens/BookingInfoScreen';
 import PaymentScreen from './screens/PaymentScreen';
 import TicketScreen from './screens/TicketScreen';
+import ConfirmScreen from './screens/ConfirmScreen'
 
 const Stack = createStackNavigator();
 
 const theme = {
   colors: {
-    primary: '#4CAF50',
-    secondary: '#2196F3',
-    background: '#F0F4F8',
+    primary: '#388E3C',  // Darker green
+    secondary: '#1976D2',  // Darker blue
+    background: '#121212',  // Dark mode background
   },
 };
+
 
 const screenOptions = {
   headerStyle: {
@@ -44,16 +46,19 @@ export default function App() {
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Search" screenOptions={screenOptions}>
+
+
+        <Stack.Screen
+            name="CompanyList"
+            component={CompanyListScreen}
+            options={{ header: () => <CustomHeader title="Empresas de Transporte" /> }}
+          />
           <Stack.Screen
             name="Search"
             component={SearchScreen}
             options={{ header: () => <CustomHeader title="Pesquisar Viagens" /> }}
           />
-          <Stack.Screen
-            name="CompanyList"
-            component={CompanyListScreen}
-            options={{ header: () => <CustomHeader title="Empresas de Transporte" /> }}
-          />
+       
           <Stack.Screen
             name="Timetable"
             component={TimetableScreen}
@@ -62,7 +67,12 @@ export default function App() {
           <Stack.Screen
             name="BookingInfo"
             component={BookingInfoScreen}
-            options={{ header: () => <CustomHeader title="Informações de Reserva" /> }}
+            options={{ header: () => <CustomHeader title="Bilhete" /> }}
+          />
+             <Stack.Screen
+            name="Confirm"
+            component={ConfirmScreen}
+            options={{ header: () => <CustomHeader title="Proforma" /> }}
           />
           <Stack.Screen
             name="Payment"
