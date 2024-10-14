@@ -5,6 +5,8 @@ import * as Animatable from 'react-native-animatable';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 const logoImage = require('../assets/100destinosslogo.png');
+import axios from 'axios';
+
 
 const banks = [
   { id: '1', name: 'MCX' ,img: require('../assets/bancos/mcx.png'), playStoreUrl:"https://play.google.com/store/apps/details?id=com.sibsint.mcxwallet",appStoreUrl:"",scheme:"com.sibsint.mcxwallet://"},
@@ -20,7 +22,11 @@ const banks = [
 
 const PaymentScreen = ({ navigation, route }) => {
   const { bookingInfo, ride, company } = route.params;
-  
+
+  function swapDotsAndCommas(inputString) {
+    return inputString.replace(/[.,]/g, match => match === '.' ? ',' : '.');
+  }
+
   const calculateTotal = () => {
     // Dummy calculation of total cost (e.g., 50 per passenger)
     return `${bookingInfo.length * 1}`;
@@ -31,6 +37,7 @@ const PaymentScreen = ({ navigation, route }) => {
   const [selectedBank, setSelectedBank] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfChecked, setpdfChecked] = useState(false);
+  const [comprovativoText, setcomprovativoText] = useState('');
 
 
   const handleCopyIban = () => {
@@ -92,7 +99,24 @@ const PaymentScreen = ({ navigation, route }) => {
 
             if(jsonResponse.original){
               var myVariable = jsonResponse.text
-              if (myVariable.includes(Total)  && myVariable.includes("AO06.0055.0000.1009.6480.1012.9") || myVariable.includes("AO06 0055 0000 1009 6480 1012 9") || myVariable.includes("AO06005500001009648010129")) {
+              if (myVariable.includes(Total+',00')  && myVariable.includes("AO06.0055.0000.1009.6480.1012.9") || myVariable.includes("AO06 0055 0000 1009 6480 1012 9") || myVariable.includes("AO06005500001009648010129")) {
+               
+                try {
+                  const response = await axios.get('https://glab-api.vercel.app/api/aef/comprovativos', {
+                    data: jsonResponse.text
+                  });
+                  if (response.status === 200) {
+                    const data = response.data;
+                    if (!data.length > 0) {
+                      setcomprovativoText(jsonResponse.text)
+                      return false
+                    } 
+                  } else {
+                    console.log('Unexpected response status:', response.status);
+                  }
+                } catch (error) {
+                  console.error('Error checking data:', error);
+                }
                 setpdfChecked(true)
                 return false
               }
@@ -107,8 +131,12 @@ const PaymentScreen = ({ navigation, route }) => {
     } 
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     // Process payment logic here
+
+    await axios.post('https://glab-api.vercel.app/api/aef/add', {
+      data: comprovativoText
+    });
     alert('Pagamento Confirmado, Obrigado! Boa Viagem!');
     navigation.navigate('Search');
 
