@@ -4,10 +4,11 @@ import { Button } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 
 const companies = [
-  { id: '1', name: 'Macon', img:"../assets/macon.jpg" },
-  { id: '2', name: 'Humabo Express', img:"../assets/Huambo-Expresso.jpg"  },
-  { id: '3', name: 'REAL Express',img:"../assets/maxresdefault.jpg" },
+  { id: '1', name: 'Macon', img: require('../assets/macon.jpg') },
+  { id: '2', name: 'Huambo Express', img: require('../assets/Huambo-Expresso.jpg') },
+  { id: '3', name: 'REAL Express', img: require('../assets/maxresdefault.jpg') },
 ];
+
 
 const CompanyListScreen = ({ navigation }) => {
   const renderItem = ({ item, index }) => (

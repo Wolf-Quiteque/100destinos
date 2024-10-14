@@ -6,10 +6,12 @@ import * as Animatable from 'react-native-animatable';
 const { width, height } = Dimensions.get('window');
 
 const backgroundImages = [
-  'https://picsum.photos/800/1200?random=1',
-  'https://picsum.photos/800/1200?random=2',
-  'https://picsum.photos/800/1200?random=3',
+  require('../assets/sera.jpg'),
+  require('../assets/tundavala.jpg'),
+  require('../assets/palancanegra.jpg'),
 ];
+
+const logoImage = require('../assets/100destinosslogo.png');
 
 const SearchScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,14 +53,14 @@ const SearchScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Animated.Image
-        source={{ uri: currentImage }}
+        source={currentImage}
         style={[
           styles.backgroundImage,
           { opacity: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
         ]}
       />
       <Animated.Image
-        source={{ uri: nextImage }}
+        source={nextImage}
         style={[
           styles.backgroundImage,
           { opacity: fadeAnim },
@@ -66,14 +68,11 @@ const SearchScreen = ({ navigation }) => {
       />
       <View style={styles.overlay}>
         <Animatable.View animation="fadeIn" duration={1000} style={styles.content}>
-          <Animatable.Text 
-            animation="pulse" 
-            easing="ease-out" 
-            iterationCount="infinite" 
+          <Animatable.Image 
+            source={logoImage}
             style={styles.logo}
-          >
-            100 Destinos
-          </Animatable.Text>
+            easing="ease-out" 
+          />
           <Animatable.View animation="fadeInUp" delay={500} style={styles.searchContainer}>
             <Input
               placeholder="Seu Destino"
@@ -81,7 +80,7 @@ const SearchScreen = ({ navigation }) => {
               inputStyle={styles.input}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholderTextColor="rgba(255,255,255,0.7)"
+              placeholderTextColor="rgba(0,0,0,0.7)"
             />
             <Button
               title="Procurar"
@@ -100,11 +99,13 @@ const SearchScreen = ({ navigation }) => {
             />
           )}
         </Animatable.View>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>By ZRD3 Tecnologias</Text>
+        </View>
       </View>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   content: {
     flex: 1,
@@ -126,13 +127,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 40,
+    marginTop: -130,
+    width: 300,
+    height: 200,
+    resizeMode: 'contain',
     marginBottom: 30,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
-    textShadowRadius: 10
   },
   searchContainer: {
     width: '80%',
@@ -141,15 +140,18 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255,255,255,0.5)',
   },
   input: {
+    borderRadius: 25,
+    backgroundColor: "rgba(255,255,255,0.5)",
     textAlign: 'center',
-    color: '#fff',
+    color: '#000',
+    fontWeight: "900",
     fontSize: 18,
   },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 5,
   },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#ff8e16',
     borderRadius: 25,
     paddingVertical: 12,
   },
@@ -157,8 +159,18 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#ff8e16',
     marginTop: 20,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 20,
+    alignSelf: 'center',
+  },
+  footerText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

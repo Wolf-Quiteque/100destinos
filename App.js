@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect }  from 'react';
 import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,12 +11,13 @@ import BookingInfoScreen from './screens/BookingInfoScreen';
 import PaymentScreen from './screens/PaymentScreen';
 import TicketScreen from './screens/TicketScreen';
 import ConfirmScreen from './screens/ConfirmScreen'
+import * as SplashScreen from 'expo-splash-screen';
 
 const Stack = createStackNavigator();
 
 const theme = {
   colors: {
-    primary: '#388E3C',  // Darker green
+    primary: '#ff8e16',  // Darker green
     secondary: '#1976D2',  // Darker blue
     background: '#121212',  // Dark mode background
   },
@@ -41,6 +42,23 @@ const CustomHeader = ({ title }) => (
 );
 
 export default function App() {
+
+  useEffect(() => {
+    const preventSplash = async () => {
+      await SplashScreen.preventAutoHideAsync();  // Prevent auto-hide
+    };
+    preventSplash();
+  }, []);
+
+  // Hide splash screen after some initialization work
+  useEffect(() => {
+    const hideSplash = async () => {
+      // Perform some initialization or delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await SplashScreen.hideAsync();  // Manually hide the splash screen
+    };
+    hideSplash();
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />

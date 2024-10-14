@@ -8,7 +8,7 @@ const ConfirmScreen = ({ navigation, route }) => {
   
   const calculateTotal = () => {
     // Dummy calculation of total cost (e.g., 50 per passenger)
-    return bookingInfo.length * 50;
+    return bookingInfo.length * 1;
   };
 
   return (
@@ -18,22 +18,54 @@ const ConfirmScreen = ({ navigation, route }) => {
         <ScrollView style={styles.scrollContainer}>
           {bookingInfo.map((passenger, index) => (
             <View key={index} style={styles.passengerInfo}>
-              <Text style={styles.textBold}>Passageiro {index + 1}</Text>
-              <Text>Nome Completo: {passenger.nomeCompleto}</Text>
-              <Text>Telefone: {passenger.telefone}</Text>
-              <Text>Idade: {passenger.idade}</Text>
-              <Text>Sexo: {passenger.sexo}</Text>
-              <Text>Província: {passenger.provincia}</Text>
-              <Text>Data de Viagem: {passenger.data.toLocaleDateString()}</Text>
-              <Text>Destino: {passenger.destino}</Text>
-              <Text style={styles.textBold}>Preço: 50 Kz</Text> {/* Dummy price */}
+              <Text style={styles.textBold}>
+                <Text>Passageiro {index + 1}</Text>
+              </Text>
+              <Text>
+                <Text>Nome Completo: </Text>
+                <Text>{passenger.nomeCompleto}</Text>
+              </Text>
+              <Text>
+                <Text>Telefone: </Text>
+                <Text>{passenger.telefone}</Text>
+              </Text>
+              <Text>
+                <Text>Idade: </Text>
+                <Text>{passenger.idade}</Text>
+              </Text>
+              <Text>
+                <Text>Sexo: </Text>
+                <Text>{passenger.sexo}</Text>
+              </Text>
+              <Text>
+                <Text>Província: </Text>
+                <Text>{passenger.provincia}</Text>
+              </Text>
+              <Text>
+                <Text>Data de Viagem: </Text>
+                <Text>{new Date(passenger.ano, passenger.mes, passenger.dia).toLocaleDateString()}</Text>
+              </Text>
+              <Text>
+                <Text>Destino: </Text>
+                <Text>{passenger.destino}</Text>
+              </Text>
+              <Text style={styles.textBold}>
+                <Text>Preço: </Text>
+                <Text>1 Kz</Text>
+              </Text>
               <View style={styles.divider} />
             </View>
           ))}
         </ScrollView>
         
-        <Text style={styles.totalText}>Total Passageiros: {bookingInfo.length}</Text>
-        <Text style={styles.totalText}>Total: {calculateTotal()} Kz</Text>
+        <Text style={styles.totalText}>
+          <Text>Total Passageiros: </Text>
+          <Text>{bookingInfo.length}</Text>
+        </Text>
+        <Text style={styles.totalText}>
+          <Text>Total: </Text>
+          <Text>{calculateTotal()} Kz</Text>
+        </Text>
 
         <Button
           title="Confirmar"
@@ -83,11 +115,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   confirmButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#ff8e16',
     marginBottom: 10,
   },
   backButton: {
-    borderColor: '#4CAF50',
+    borderColor: '#ff8e16',
   },
 });
 
