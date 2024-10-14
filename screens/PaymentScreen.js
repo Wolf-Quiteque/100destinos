@@ -8,6 +8,7 @@ const logoImage = require('../assets/100destinosslogo.png');
 import axios from 'axios';
 
 
+
 const banks = [
   { id: '1', name: 'MCX' ,img: require('../assets/bancos/mcx.png'), playStoreUrl:"https://play.google.com/store/apps/details?id=com.sibsint.mcxwallet",appStoreUrl:"",scheme:"com.sibsint.mcxwallet://"},
   { id: '2', name: 'BAI', img: require('../assets/bancos/bai.jpeg'),playStoreUrl:"",appStoreUrl:"", scheme:"baibank://"},
@@ -37,9 +38,12 @@ const PaymentScreen = ({ navigation, route }) => {
   const [selectedBank, setSelectedBank] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfChecked, setpdfChecked] = useState(false);
-  const [comprovativoText, setcomprovativoText] = useState('');
+  const [loading, setloading] = useState(false);
+
+  const [ttext, settext] = useState('');
 
 
+ var comprovativoText = ''
   const handleCopyIban = () => {
     Clipboard.setString('005500001009648010129');
   };
@@ -65,6 +69,8 @@ const PaymentScreen = ({ navigation, route }) => {
   };
 
   const handleUploadPDF = async () => {
+    setPdfFile(null)
+
     const Total = calculateTotal()
     let result = await DocumentPicker.getDocumentAsync({
       type: "application/pdf", // Only allow PDF files
@@ -73,6 +79,7 @@ const PaymentScreen = ({ navigation, route }) => {
     console.log(result)
     if (result.assets[0]) {
       setPdfFile(result.assets[0]);
+      setloading(true)
 
       try { 
       const { uri, name, mimeType } = result.assets[0];
@@ -95,7 +102,11 @@ const PaymentScreen = ({ navigation, route }) => {
             });
 
             const jsonResponse = await response.json();
-
+            const text = jsonResponse.text
+             comprovativoText = text.replace(/\n/g, ' ');
+             comprovativoText = comprovativoText.replace(/\s+/g, '');
+             console.log(comprovativoText)
+             settext(comprovativoText)
 
             if(jsonResponse.original){
               var myVariable = jsonResponse.text
@@ -103,24 +114,23 @@ const PaymentScreen = ({ navigation, route }) => {
                
                 try {
                   const response = await axios.get('https://glab-api.vercel.app/api/aef/comprovativos', {
-                    data: jsonResponse.text
+                    data: comprovativoText
                   });
                   if (response.status === 200) {
                     const data = response.data;
                     if (!data.length > 0) {
-                      setcomprovativoText(jsonResponse.text)
+                setpdfChecked(true)
+    setloading(false)
+
                       return false
                     } 
-                  } else {
-                    console.log('Unexpected response status:', response.status);
                   }
                 } catch (error) {
                   console.error('Error checking data:', error);
                 }
-                setpdfChecked(true)
-                return false
               }
             }
+            setloading(false)
 
               alert("COMPROVATIVO REIJEITADO, por favor tenta novamente.")
               setPdfFile(null)
@@ -132,10 +142,9 @@ const PaymentScreen = ({ navigation, route }) => {
   };
 
   const handlePayment = async () => {
-    // Process payment logic here
 
     await axios.post('https://glab-api.vercel.app/api/aef/add', {
-      data: comprovativoText
+      data: ttext
     });
     alert('Pagamento Confirmado, Obrigado! Boa Viagem!');
     navigation.navigate('Search');
@@ -183,15 +192,18 @@ const PaymentScreen = ({ navigation, route }) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
-
+        
           <Button
             title="Carregar Comprovativo (PDF)"
             onPress={handleUploadPDF}
             buttonStyle={styles.uploadButton}
+            loading={loading}
+
           />
           {pdfFile && (
             <Text style={styles.fileName}>{pdfFile.name || 'Comprovativo carregado'}</Text>
           )}
+
 
           <Button
             title="Confirmar Pagamento"
@@ -280,6 +292,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 10,
   },
+
 });
 
 export default PaymentScreen;
